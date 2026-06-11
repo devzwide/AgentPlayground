@@ -1,0 +1,33 @@
+trigger:
+  branches:
+    include:
+      - main 
+
+pool:
+  name: 'SQLSERVERAGENTPOOL' 
+
+steps:
+- task: PowerShell@2
+  displayName: 'Deploy Database Updates'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # 1. Define the workspace variable
+      $workspace = "$(System.DefaultWorkingDirectory)"
+      
+      Write-Host "--- Repository Structure ---"
+      Get-ChildItem -Path $workspace -Recurse | Select-Object FullName
+      Write-Host "----------------------------"
+      
+      # 2. Build the path using $workspace
+      $createDbScript = Join-Path $workspace "CreateDatabase.sql"
+      Write-Host "Executing $createDbScript"
+      
+      # 3. Execute the script
+      sqlcmd -S localhost -d master -E -i $createDbScript
+      
+      # 4. Repeat for AddUser.sql using $workspace
+      $addUserScript = Join-Path $workspace "AddUser.sql"
+      Write-Host "Executing $addUserScript"
+      
+      sqlcmd -S localhost -d master -E -i $addUserScript
