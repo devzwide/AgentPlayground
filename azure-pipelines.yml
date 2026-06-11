@@ -1,0 +1,28 @@
+trigger:
+  branches:
+    include:
+      - main 
+
+pool:
+  name: 'SQLSERVERAGENTPOOL' 
+
+steps:
+- task: PowerShell@2
+  displayName: 'Deploy Database Updates'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Define the path to your SQL files
+      $sqlDir = "$(System.DefaultWorkingDirectory)\devzwide\agentplayground\AgentPlayground-aff7d9aeebfe4404266efb11095ca171b3e1f06f"
+      
+      # Run CreateDatabase.sql
+      $createDbScript = Join-Path $sqlDir "CreateDatabase.sql"
+      Write-Host "Executing $createDbScript"
+      
+      # Using Windows Authentication (-E) since the agent runs locally
+      sqlcmd -S localhost -d master -E -i $createDbScript
+      
+      # Run AddUser.sql
+      $addUserScript = Join-Path $sqlDir "AddUser.sql"
+      Write-Host "Executing $addUserScript"
+      sqlcmd -S localhost -d master -E -i $addUserScript
