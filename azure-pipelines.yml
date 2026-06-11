@@ -12,8 +12,11 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      # Define the path to your SQL files
-      $sqlDir = "$(System.DefaultWorkingDirectory)\devzwide\agentplayground\AgentPlayground-aff7d9aeebfe4404266efb11095ca171b3e1f06f"
+      $workspace = "$(System.DefaultWorkingDirectory)"
+      
+      Write-Host "--- Repository Structure ---"
+      Get-ChildItem -Path $workspace -Recurse | Select-Object FullName
+      Write-Host "----------------------------"
       
       # Run CreateDatabase.sql
       $createDbScript = Join-Path $sqlDir "CreateDatabase.sql"
