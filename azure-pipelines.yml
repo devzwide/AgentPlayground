@@ -12,20 +12,22 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      # 1. Define the workspace variable
       $workspace = "$(System.DefaultWorkingDirectory)"
       
       Write-Host "--- Repository Structure ---"
       Get-ChildItem -Path $workspace -Recurse | Select-Object FullName
       Write-Host "----------------------------"
       
-      # Run CreateDatabase.sql
-      $createDbScript = Join-Path $sqlDir "CreateDatabase.sql"
+      # 2. Build the path using $workspace
+      $createDbScript = Join-Path $workspace "CreateDatabase.sql"
       Write-Host "Executing $createDbScript"
       
-      # Using Windows Authentication (-E) since the agent runs locally
+      # 3. Execute the script
       sqlcmd -S localhost -d master -E -i $createDbScript
       
-      # Run AddUser.sql
-      $addUserScript = Join-Path $sqlDir "AddUser.sql"
+      # 4. Repeat for AddUser.sql using $workspace
+      $addUserScript = Join-Path $workspace "AddUser.sql"
       Write-Host "Executing $addUserScript"
+      
       sqlcmd -S localhost -d master -E -i $addUserScript
